@@ -4,18 +4,25 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
 func loading(c chan struct{}) {
+	i := 0
 	for {
 		select {
 		case <- c:
 			fmt.Println()
 			return
 		default:
-			fmt.Print(".")
+			fmt.Printf("\rLoading%s",strings.Repeat(".", i))
+			i++
+			if i > 3 {
+				i = 0
+			}
 			time.Sleep(500 * time.Millisecond)
+			fmt.Print("\033[GLoading\033[K") // move the cursor left and clear the line
 		}
 	}
 }
@@ -28,10 +35,10 @@ func processText(text string, s *bufio.Scanner) bool {
 	close(ch)
 
 	fmt.Println("<INSERT>\n")
-	fmt.Println("Continue? (y/n)")
 
 	for s.Scan() {
 		dump := s.Text()
+		fmt.Print("\rContinue? (y/n): ")
 		if dump == "y" {
 			return true
 		} else if dump == "n" {
